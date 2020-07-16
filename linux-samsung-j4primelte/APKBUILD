@@ -1,0 +1,43 @@
+# Reference: <https://postmarketos.org/vendorkernel>
+# Kernel config based on: arch/arm/configs/(CHANGEME!)
+
+pkgname=linux-samsung-j4primelte
+pkgver=3.18.120
+pkgrel=0
+pkgdesc="Samsung Galaxy J4+ kernel fork"
+arch="armhf"
+_carch="arm"
+_flavor="samsung-j4primelte"
+url="https://kernel.org"
+license="GPL-2.0-only"
+options="!strip !check !tracedeps pmb:cross-native"
+makedepends="bash bc bison devicepkg-dev flex openssl-dev perl"
+
+# Source
+_repository="android_kernel_samsung_msm8917"
+_commit="e87b98d540381f54a2f93c2888301b39f58b2e6a"
+_config="config-$_flavor.$arch"
+source="
+	$pkgname-$_commit.tar.gz::https://github.com/MacTavishAO/$_repository/archive/$_commit.tar.gz
+	$_config
+"
+builddir="$srcdir/$_repository-$_commit"
+_outdir="out"
+
+prepare() {
+	default_prepare
+	. downstreamkernel_prepare
+}
+
+build() {
+	unset LDFLAGS
+	make O="$_outdir" ARCH="$_carch" CC="${CC:-gcc}" \
+		KBUILD_BUILD_VERSION="$((pkgrel + 1 ))-postmarketOS"
+}
+
+package() {
+	downstreamkernel_package "$builddir" "$pkgdir" "$_carch" "$_flavor" "$_outdir"
+}
+
+sha512sums="943156bc33d0de5a1a3d6bd1dcc6a79a1dbfeeec2c3e3dd0a2b75949ba33d5087fe3eff9861e56cfc3b8229e9bcb3f5fef971a802bfd99a0fea9b28acade3281  linux-samsung-j4primelte-e87b98d540381f54a2f93c2888301b39f58b2e6a.tar.gz
+a3a7b4d6a97a7e55b731182eb4e583c1e8f9b8992de020201af7f806b5aae03ca14d000bc59d0e9a893a6da7dbd68f7d23081c12fd24134379958b872280e686  config-samsung-j4primelte.armhf"
